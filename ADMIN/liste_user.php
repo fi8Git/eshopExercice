@@ -32,7 +32,7 @@
             
         }
 
-        //$contenu .= "<td><a href='formulaire_produit.php?id=" . $produit['id_produit'] . "'><i class='fas fa-pen'></i></a></td>";
+        $contenu .= "<td><a href='../modification.php?id=" . $membre['id_membre'] . "'><i class='fas fa-pen'></i></a></td>";
 
         $contenu .= "<td><a data-toggle='modal' data-target='#deleteModal" . $membre['id_membre'] . "'><i class='fas fa-trash-alt'></i></a></td>";
 
@@ -42,6 +42,8 @@
         $contenu .= "</tr>";
     }
 
+    $contenu .= "</tbody></table>";
+    $contenu .= "</div>";
 ?>
 
 <?= $msg ?>
