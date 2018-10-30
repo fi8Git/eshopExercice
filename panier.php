@@ -97,14 +97,14 @@
         }
     }
 
-    // $_SESSION['user']['adresse'] = $user['adresse'];
-    // $_SESSION['user']['code_postal'] = $user['code_postal'];
-    // $_SESSION['user']['ville'] = $user['ville'];
+    // // $_SESSION['user']['adresse'] = $user['adresse'];
+    // // $_SESSION['user']['code_postal'] = $user['code_postal'];
+    // // $_SESSION['user']['ville'] = $user['ville'];
 
-    // if(empty($_SESSION['adresse']) || empty($_SESSION['code_postal']) || empty($_SESSION['ville'])){
-    //     $manque = echo "<div class='alert alert-danger'>Veuillez remplir entièrement vos cordonnées d'envoi !</div>";
-    //     $manque .= echo "<a class='btn btn-warning' href='profil.php'>Remplir le profil</a>";
-    //     $manque .= echo "<style>.btn-success{ display: none }</style>";
+    // if(empty($_SESSION['user']['adresse']) || empty($_SESSION['user']['code_postal']) || empty($_SESSION['user']['ville'])){
+    //     $manque = "<div class='alert alert-danger'>Veuillez remplir entièrement vos cordonnées d'envoi !</div>";
+    //     $manque .= "<a class='btn btn-warning' href='profil.php'>Remplir le profil</a>";
+    //     $manque .= "<style>.btn-success{ display: none }</style>";
     // }
 
     // debug($_SESSION);
@@ -141,7 +141,31 @@
 
                         <td><?= $value['prix'] ?> €</td>
 
-                        <td><?php $value['quantite'] -- ; echo "<i class='fas fa-arrow-left'></i>"; ?> <?= $value['quantite'] ?> <?php $value['quantite'] ++ ; echo "<i class='fas fa-arrow-right'></i>"; ?></td>
+                        <td>
+
+                        <script> 
+                        var flechegaucheClic = document.getElementById('fleche_gauche');
+                        var flechedroiteClic = document.getElementById('fleche_droite');
+
+                        flechegaucheClic.addEventListener('click', onMouseClic);
+                        flechedroiteClic.addEventListener('click', onMouseClic);
+
+                        function onMouseClic() {
+                            flechedroiteClic;
+                            flechegaucheClic;
+
+                            if (flechegaucheClic) {
+                                <?php $value['quantite'] -- ?>;
+                            } else if(flechedroiteClic){
+                                <?php $value['quantite'] ++ ?>;
+                            }
+                        }
+                        </script>
+
+                        <i class='fas fa-arrow-left' id="fleche_gauche"></i>
+                        <?= $value['quantite'] ?>
+                        <i class='fas fa-arrow-right' id="fleche_droite"></i>
+                        </td>
 
                         <td><?= $value['quantite']*$value['prix'] ?> €</td>
                         
