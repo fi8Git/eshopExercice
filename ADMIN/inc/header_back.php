@@ -85,10 +85,16 @@
               </a>
             </h6>
             <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link" href="#">
+            <li class="nav-item">
+                <a class="nav-link" href="liste_user.php">
                   <span data-feather="file-text"></span>
                   Liste des utilisateurs
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="historique_user.php">
+                  <span data-feather="file-text"></span>
+                  Historique des commandes utilisateurs
                 </a>
               </li>
             </ul>
