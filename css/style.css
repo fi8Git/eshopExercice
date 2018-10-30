@@ -12,14 +12,22 @@ body
 /* *** Règles CSS perso *** */
 
 .titre {
-  font-size: 1.6em;
+  font-size: 1.4em;
   font-weight: bold;
   letter-spacing: 2px;
   color: #76b39d;
-  text-shadow: 1px 1px 1px black;
+  text-shadow: 1px 1px 1px #598877;
+  transition: 0.3s;
 }
 
 .titre:hover {
   text-decoration: none;
+  color: #76b39d;  
+  font-size: 1.5em;
+  opacity: 0.8;
+}
+
+.index {
+  letter-spacing: 2px;
   color: #76b39d;
 }

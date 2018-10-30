@@ -143,7 +143,7 @@
 
                         <td>
 
-                        <script> 
+                        <!-- <script> 
                         var flechegaucheClic = document.getElementById('fleche_gauche');
                         var flechedroiteClic = document.getElementById('fleche_droite');
 
@@ -160,7 +160,7 @@
                                 <?php $value['quantite'] ++ ?>;
                             }
                         }
-                        </script>
+                        </script> -->
 
                         <i class='fas fa-arrow-left' id="fleche_gauche"></i>
                         <?= $value['quantite'] ?>

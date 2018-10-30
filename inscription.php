@@ -44,7 +44,7 @@
                 
                 if($_POST['new_password'] == $_POST['confirm_password'])
                 {
-                    $_POST['password'] = $_POST['new_password']; # Besoin de confirmation
+                    $mot_de_passe = $_POST['new_password']; # Besoin de confirmation
                 }
                 else
                 {
@@ -124,7 +124,7 @@
         }
         else 
         {
-            $chemin_photo = RACINE . 'assets/uploads/user/default.png'; # Besoin de confirmation
+            $nom_photo = "default.png";
         }
 
         # Si pas d'erreur : code 
@@ -136,17 +136,7 @@
             {
                 $result = $pdo->prepare("UPDATE membre SET pseudo=:pseudo,photo=:photo ,mdp=:mdp, nom=:nom, prenom=:prenom, email=:email, civilite=:civilite, ville=:ville, adresse=:adresse, code_postal=:code_postal WHERE id_membre = :id_membre");
 
-                // Valeurs enregistrés
                 $result->bindValue(":id_membre", $_POST['id_membre'], PDO::PARAM_INT);
-                $result->bindValue(':pseudo', $_POST['pseudo'], PDO::PARAM_STR);
-                $result->bindValue(':nom', $_POST['nom'], PDO::PARAM_STR);
-                $result->bindValue(':prenom', $_POST['prenom'], PDO::PARAM_STR);
-                $result->bindValue(':email', $_POST['email'], PDO::PARAM_STR);
-                $result->bindValue(':civilite', $_POST['civilite'], PDO::PARAM_STR);
-                $result->bindValue(':ville', $_POST['ville'], PDO::PARAM_STR);
-                $result->bindValue(':adresse', $_POST['adresse'], PDO::PARAM_STR);
-                $result->bindValue(':code_postal', $_POST['code_postal'], PDO::PARAM_INT);
-                $result->bindValue(':photo', $_POST['photo'], PDO::PARAM_STR); # Besoin de confirmation
 
             }
             else # Première fois
@@ -164,22 +154,28 @@
                 {
                     $result = $pdo->prepare("INSERT INTO membre (pseudo, photo, mdp, nom, prenom, email, civilite, ville, code_postal, adresse, statut) VALUES (:pseudo, :photo, :mdp, :nom, :prenom, :email, :civilite, :ville, :code_postal, :adresse, 0)"); # Besoin de confirmation
 
-                    # Password : hash
-                    $password_hash = password_hash($mot_de_passe, PASSWORD_BCRYPT);
-                    $result->bindValue(':mdp', $password_hash, PDO::PARAM_STR); # Besoin de confirmation
-
-                    // Valeurs enregistrés
-                    $result->bindValue(':pseudo', $_POST['pseudo'], PDO::PARAM_STR);
-                    $result->bindValue(':nom', $_POST['nom'], PDO::PARAM_STR);
-                    $result->bindValue(':prenom', $_POST['prenom'], PDO::PARAM_STR);
-                    $result->bindValue(':email', $_POST['email'], PDO::PARAM_STR);
-                    $result->bindValue(':civilite', $_POST['civilite'], PDO::PARAM_STR);
-                    $result->bindValue(':ville', $_POST['ville'], PDO::PARAM_STR);
-                    $result->bindValue(':adresse', $_POST['adresse'], PDO::PARAM_STR);
-                    $result->bindValue(':code_postal', $_POST['code_postal'], PDO::PARAM_INT);
+                    $mot_de_passe = $_POST['password'];
 
                 }
+                
             }
+
+            # Password : hash
+            $password_hash = password_hash($mot_de_passe, PASSWORD_BCRYPT);
+            $result->bindValue(':mdp', $password_hash, PDO::PARAM_STR);
+
+            // Valeurs enregistrés
+            $result->bindValue(':pseudo', $_POST['pseudo'], PDO::PARAM_STR);
+            $result->bindValue(':nom', $_POST['nom'], PDO::PARAM_STR);
+            $result->bindValue(':prenom', $_POST['prenom'], PDO::PARAM_STR);
+            $result->bindValue(':email', $_POST['email'], PDO::PARAM_STR);
+            $result->bindValue(':civilite', $_POST['civilite'], PDO::PARAM_STR);
+            $result->bindValue(':ville', $_POST['ville'], PDO::PARAM_STR);
+            $result->bindValue(':adresse', $_POST['adresse'], PDO::PARAM_STR);
+            $result->bindValue(':code_postal', $_POST['code_postal'], PDO::PARAM_INT);
+            $result->bindValue(':photo', $nom_photo, PDO::PARAM_STR);
+
+            
 
             # Si tout fonctionne comme il faut ...
             if($result->execute())
@@ -255,7 +251,7 @@
     }
 
     # Conserver valeurs rentrées par l'utilisateur : code OK
-    $photo = (isset($modif_membre)) ? $modif_membre['photo'] : '';
+    $photo = (isset($modif_membre['photo'])) ? $modif_membre['photo'] : '';
     $pseudo = (isset($modif_membre['pseudo'])) ? $modif_membre['pseudo'] : '';
     $prenom = (isset($modif_membre['prenom'])) ? $modif_membre['prenom'] : '';
     $nom = (isset($modif_membre['nom'])) ? $modif_membre['nom'] : '';
@@ -310,7 +306,7 @@
                     <input type="password" class="form-control" id="confirm_password" placeholder="Confirmez votre nouveau mot de passe ..." name="confirm_password">
                 </div>
             <?php endif ?>
-            
+
             <div class="form-group">
                 <label for="prenom">Prénom</label>
                 <input type="text" class="form-control" id="prenom" placeholder="Quel est votre prénom ..." name="prenom" value="<?= $prenom ?>">

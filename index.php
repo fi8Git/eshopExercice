@@ -40,20 +40,18 @@
       </div>
       <?= $msg ?>
       <div class="row">
-        <div class="col-12">
-          <div class='card'>
-            <ul class="list-group">
-              <li class="list-group-item"><a href="index.php" class="titre">Eshop.com</a></li>
-              <li class="list-group-item"><a href="?cat=all">Tous</a></li>
-              <?php foreach($categories as $categorie) : ?>
-                <li class="list-group-item">
-                  <a href="?cat=<?= $categorie['categorie'] ?>">
+        <div class="col">
+          <a href="index.php" class="titre">Eshop.com</a>
+        </div>
+        <div class="col">
+          <a class="index" href="?cat=all">Tous</a>
+        </div>
+        <div class="col">
+          <?php foreach($categories as $categorie) : ?>
+                  <a class="index" href="?cat=<?= $categorie['categorie'] ?>">
                     <?= $categorie['categorie'] ?>
                   </a>
-                </li>
               <?php endforeach; ?>
-            </ul>
-          </div>
         </div>
       </div>
 
