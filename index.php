@@ -11,6 +11,10 @@
 
     // debug($categories);
 
+    if(isset($_GET['m']) && $_GET['m'] == "delete"){
+      $msg .= "<div class='alert alert-warning' style='text-align:center;'>Votre profil est bien supprimé, nous espèrons vous revoir bientôt!</div>";
+    }
+
     if(isset($_GET['cat']) && $_GET['cat'] != "all")
     {
       $result = $pdo->prepare('SELECT * FROM produit WHERE categorie = :categorie');
@@ -34,14 +38,12 @@
         <h1><?= $page ?></h1>
         <p class="lead">Profitez de nos super prix toute l'année !</p>
       </div>
-
+      <?= $msg ?>
       <div class="row">
-        <div class="col-sm-3">
+        <div class="col-12">
           <div class='card'>
-            <div class="card-header">
-              CATEGORIES
-            </div>
             <ul class="list-group">
+              <li class="list-group-item"><a href="index.php" class="titre">Eshop.com</a></li>
               <li class="list-group-item"><a href="?cat=all">Tous</a></li>
               <?php foreach($categories as $categorie) : ?>
                 <li class="list-group-item">
@@ -53,7 +55,9 @@
             </ul>
           </div>
         </div>
+      </div>
 
+      <div class="row">
         <div class="col-sm-9">
           <div class="card-columns">
             <?php foreach($produits as $produit) : ?>

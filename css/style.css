@@ -10,3 +10,10 @@ body
 }
 
 /* *** Règles CSS perso *** */
+
+.titre {
+  font-size: 1.6em;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #76b39d;
+}

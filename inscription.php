@@ -38,11 +38,25 @@
             {
                 $msg .= "<div class='alert alert-danger'>Votre mot de passe doit contenir entre 6 et 15 caractères avec au moins une majuscule, une minuscule, un nombre et un symbole. Veuillez réessayer !</div>";
             }
+
+            if(!empty($_POST['new_passord']) && !empty($_POST['confirm_password']) ){
+                
+                if($_POST['new_password'] == $_POST['confirm_password'])
+                {
+                    $mot_de_passe = $_POST['new_password'];
+                }
+                else
+                {
+                    $msg .= "<div class='alert alert-danger'>Veuillez rentrer le même mot de passe dans les deux champs.</div>";
+                }
+                
+            }
         }
         else 
         {
             $msg .= "<div class='alert alert-danger'>Veuillez rentrer un mot de passe.</div>";
         }
+
 
         # Je vérifie l'email
         if(!empty($_POST['email']))
@@ -78,67 +92,202 @@
             $msg .= "<div class='alert alert-danger'>Veuillez rentrer votre civilité.</div>";
         }
 
+        # Je vérifie la photo
+        if(!empty($_FILES['photo']['name']))
+        {
+
+            # Nous allons donner un nom aléatoire à notre photo
+            $nom_photo = $_POST['pseudo'] . '_' . time() . '-' . rand(1,999) . $_FILES['photo']['name'];
+            $nom_photo = str_replace(' ', '-', $nom_photo);
+            $nom_photo = str_replace(array('é','è','à','ç','ù'), 'x', $nom_photo);
+
+            // Enregistrons le chemin de notre fichier
+            $chemin_photo = RACINE . '/assets/uploads/user/' . $nom_photo;
+
+            $taille_max = 2*1048576; # On définit ici la taille maximale autorisée (2Mo)
+
+            if($_FILES['photo']["size"] > $taille_max || empty($_FILES['photo']["size"]))
+            {
+                $msg .= "<div class='alert alert-danger'>Veuillez sélectionner un fichier de 2Mo maximum.</div>";
+            }
+
+            $type_photo = [
+                'image/jpeg',
+                'image/png',
+                'image/gif'
+            ];
+
+            if (!in_array($_FILES['photo']["type"], $type_photo) || empty($_FILES['photo']["type"])) 
+            {
+                $msg .= "<div class='alert alert-danger'>Veuillez sélectionner un fichier JPEG/JPG, PNG ou GIF.</div>";
+            }
+
+        }
+        elseif(isset($_POST['photo_actuelle']))
+        {
+            $nom_photo = $_POST['photo_actuelle'];
+        }
+        else 
+        {
+            $nom_photo = "default.png";
+        }
+
         // PLACER LES AUTRES VERIFICATIONS ICI
+
 
         if(empty($msg))
         {
-            // check si le pseudo est dispo
-            $result = $pdo->prepare("SELECT pseudo FROM membre WHERE pseudo = :pseudo");
-            $result->bindValue(':pseudo', $_POST['pseudo'], PDO::PARAM_STR);
-            $result->execute();
 
-            if($result->rowCount() == 1)
+            if(!empty($_POST['id_membre'])) # Je suis en train de modifier les infos d'un membre
             {
-                $msg .= "<div class='alert alert-danger'>Le pseudo $_POST[pseudo] est déjà pris, veuillez en choisir un autre.</div>";
+                $result = $pdo->prepare("UPDATE membre SET pseudo=:pseudo, mdp=:mdp, nom=:nom, prenom=:prenom, email=:email, civilite=:civilite, ville=:ville, adresse=:adresse, code_postal=:code_postal WHERE id_membre = :id_membre");
+
+                $result->bindValue(":id_membre", $_POST['id_membre'], PDO::PARAM_INT);
+
             }
-            else 
-            {
-                $result = $pdo->prepare("INSERT INTO membre (pseudo, mdp, nom, prenom, email, civilite, ville, code_postal, adresse, statut) VALUES (:pseudo, :mdp, :nom, :prenom, :email, :civilite, :ville, :code_postal, :adresse, 0)");
-
-                $password_hash = password_hash($_POST['password'], PASSWORD_BCRYPT); 
-                # La fonction password_hash() va nous permettre de crypter sérieusement un mot de passe. Elle prend 2 arguments: le résultat ciblé + la méthode à utiliser
-
+            else # Je suis en train d'enregistrer pour la première fois un membre
+            { 
+                // check si le pseudo est dispo
+                $result = $pdo->prepare("SELECT pseudo FROM membre WHERE pseudo = :pseudo");
                 $result->bindValue(':pseudo', $_POST['pseudo'], PDO::PARAM_STR);
-                $result->bindValue(':mdp', $password_hash, PDO::PARAM_STR);
-                $result->bindValue(':nom', $_POST['nom'], PDO::PARAM_STR);
-                $result->bindValue(':prenom', $_POST['prenom'], PDO::PARAM_STR);
-                $result->bindValue(':email', $_POST['email'], PDO::PARAM_STR);
-                $result->bindValue(':civilite', $_POST['civilite'], PDO::PARAM_STR);
-                $result->bindValue(':ville', $_POST['ville'], PDO::PARAM_STR);
-                $result->bindValue(':adresse', $_POST['adresse'], PDO::PARAM_STR);
-                
-                $result->bindValue(':code_postal', $_POST['code_postal'], PDO::PARAM_INT);
+                $result->execute();
 
-                if($result->execute())
+                if($result->rowCount() == 1)
                 {
-                    // $msg .= "<div class='alert alert-success'>Vous êtes bien enregistré.</div>";
-
-                    header("location:connexion.php?m=success");
+                    $msg .= "<div class='alert alert-danger'>Le pseudo $_POST[pseudo] est déjà pris, veuillez en choisir un autre.</div>";
                 }
+                else 
+                {
+                    $result = $pdo->prepare("INSERT INTO membre (pseudo, mdp, nom, prenom, email, civilite, ville, code_postal, adresse, statut) VALUES (:pseudo, :mdp, :nom, :prenom, :email, :civilite, :ville, :code_postal, :adresse, 0)");
 
+                    $mot_de_passe = $_POST['password'];
+                }
+                
+            }
+
+            $password_hash = password_hash($mot_de_passe, PASSWORD_BCRYPT); 
+            # La fonction password_hash() va nous permettre de crypter sérieusement un mot de passe. Elle prend 2 arguments: le résultat ciblé + la méthode à utiliser
+            $result->bindValue(':mdp', $password_hash, PDO::PARAM_STR);
+            
+            $result->bindValue(':pseudo', $_POST['pseudo'], PDO::PARAM_STR);
+            $result->bindValue(':nom', $_POST['nom'], PDO::PARAM_STR);
+            $result->bindValue(':prenom', $_POST['prenom'], PDO::PARAM_STR);
+            $result->bindValue(':email', $_POST['email'], PDO::PARAM_STR);
+            $result->bindValue(':civilite', $_POST['civilite'], PDO::PARAM_STR);
+            $result->bindValue(':ville', $_POST['ville'], PDO::PARAM_STR);
+            $result->bindValue(':adresse', $_POST['adresse'], PDO::PARAM_STR);
+            
+            $result->bindValue(':code_postal', $_POST['code_postal'], PDO::PARAM_INT);
+
+            if($result->execute())
+            {
+                // $msg .= "<div class='alert alert-success'>Vous êtes bien enregistré.</div>";
+
+                if(!empty($_FILES['photo']['name']))
+                {
+                    copy($_FILES['photo']['tmp_name'], $chemin_photo);
+                }
+    
+                if(!empty($_POST['id_membre']))
+                {
+                    $req = "SELECT * FROM membre WHERE id_membre = :id";
+
+                    $result = $pdo->prepare($req);
+                    $result->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
+                    $result->execute();
+
+                    $user = $result->fetch();
+
+                    $_SESSION['user']['pseudo'] = $user['pseudo'];
+                    $_SESSION['user']['prenom'] = $user['prenom'];
+                    $_SESSION['user']['nom'] = $user['nom'];
+                    $_SESSION['user']['email'] = $user['email'];
+                    $_SESSION['user']['adresse'] = $user['adresse'];
+                    $_SESSION['user']['ville'] = $user['ville'];
+                    $_SESSION['user']['code_postal'] = $user['code_postal'];
+                    $_SESSION['user']['civilite'] = $user['civilite'];
+
+                    header("location:profil.php?m=update");
+                }
+                else
+                {
+                    header("location:connexion.php?m=success");
+
+                }
 
             }
         }
 
     }
 
+    if($_GET)
+    {
+
+       if(isset($_GET['id']) && !empty($_GET['id']) && is_numeric($_GET['id']))
+        {
+            $req = "SELECT * FROM membre WHERE id_membre = :id";
+
+            $result = $pdo->prepare($req);
+            $result->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
+            $result->execute();
+
+            if($result->rowCount() == 1)
+            {
+                $modif_membre = $result->fetch();
+
+                // debug($modif_membre);
+            }
+            else 
+            {
+                $msg .= "<div class='alert alert-danger'>Aucune correspondance en base de donnée.</div>";
+            }
+        }
+        else 
+        {
+            $msg .= "<div class='alert alert-danger'>Aucune correspondance en base de donnée.</div>";
+        } 
+
+
+    }
+
     # Je souhaite conserver les valeurs rentrées par l'utilisateur durant le processus de rechargement de la page
-    $pseudo = (isset($_POST['pseudo'])) ? $_POST['pseudo'] : '';
-    $prenom = (isset($_POST['prenom'])) ? $_POST['prenom'] : '';
-    $nom = (isset($_POST['nom'])) ? $_POST['nom'] : '';
-    $email = (isset($_POST['email'])) ? $_POST['email'] : '';
-    $adresse = (isset($_POST['adresse'])) ? $_POST['adresse'] : '';
-    $code_postal = (isset($_POST['code_postal'])) ? $_POST['code_postal'] : '';
-    $ville = (isset($_POST['ville'])) ? $_POST['ville'] : '';
-    $civilite = (isset($_POST['civilite'])) ? $_POST['civilite'] : '';
+    $photo = (isset($modif_membre)) ? $modif_membre['photo'] : "";
+    $pseudo = (isset($modif_membre['pseudo'])) ? $modif_membre['pseudo'] : '';
+    $prenom = (isset($modif_membre['prenom'])) ? $modif_membre['prenom'] : '';
+    $nom = (isset($modif_membre['nom'])) ? $modif_membre['nom'] : '';
+    $email = (isset($modif_membre['email'])) ? $modif_membre['email'] : '';
+    $adresse = (isset($modif_membre['adresse'])) ? $modif_membre['adresse'] : '';
+    $code_postal = (isset($modif_membre['code_postal'])) ? $modif_membre['code_postal'] : '';
+    $ville = (isset($modif_membre['ville'])) ? $modif_membre['ville'] : '';
+    $civilite = (isset($modif_membre['civilite'])) ? $modif_membre['civilite'] : '';
+
+    $id_membre = (isset($modif_membre)) ? $modif_membre['id_membre'] : "";
+
+    $action = (isset($modif_membre)) ? "Modifier" : "Inscription";
 
 ?>
 
     <div class="starter-template">
     <h1><?= $page ?></h1>
-        <form action="" method="post">
-            <small class="form-text text-muted">Vos données ne seront revendues à des services tiers.</small>
+        <form action="" method="post" enctype="multipart/form-data">
+            <small class="form-text text-muted">Vos données ne seront pas revendues à des services tiers.</small>
             <?= $msg ?>
+            <input type="hidden" name="id_membre" value="<?=$id_membre?>">
+            <div class="form-group">
+            <label for="photo">Photo de profil</label>
+            <input type="file" class="form-control-file" id="photo" name="photo">
+
+            <?php
+
+                if(isset($modif_membre))
+                {
+                    echo "<input name='photo_actuelle' value='$photo' type='hidden'>";
+                    echo "<img style='width:25%;' src='" . URL . "/assets/uploads/user/$photo'>";
+                }
+
+            ?>
+
+            </div>
             <div class="form-group">
                 <label for="pseudo">Pseudo</label>
                 <input type="text" class="form-control" id="pseudo" placeholder="Choisissez votre pseudo ..." name="pseudo" required value="<?= $pseudo ?>">
@@ -148,6 +297,15 @@
                 <label for="password">Mot de passe</label>
                 <input type="password" class="form-control" id="password" placeholder="Choisissez votre mot de passe ..." name="password" required>
             </div>
+            <?php  if(isset($_GET['a']) && $_GET['a'] == 'modifier') : ?>
+                <div class="form-group">
+                    <label for="password">Nouveau mot de passe</label>
+                    <input type="password" class="form-control" id="new_password" placeholder="Entrez votre nouveau mot de passe ..." name="new_password" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" id="confirm_password" placeholder="Confirmez votre nouveau mot de passe ..." name="confirm_password" required>
+                </div>
+            <?php endif ?>
             <div class="form-group">
                 <label for="prenom">Prénom</label>
                 <input type="text" class="form-control" id="prenom" placeholder="Quel est votre prénom ..." name="prenom" value="<?= $prenom ?>">
@@ -180,7 +338,7 @@
                 <label for="ville">Ville</label>
                 <input type="text" class="form-control" id="ville" placeholder="Quelle est votre ville ..." name="ville" value="<?= $ville ?>">
             </div>
-            <button type="submit" class="btn btn-primary btn-lg btn-block">Inscription</button>
+            <button type="submit" class="btn btn-primary btn-lg btn-block"><?= $action ?></button>
         </form>
     </div>
 

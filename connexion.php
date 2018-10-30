@@ -31,9 +31,6 @@
 
             if(password_verify($_POST['password'], $user['mdp'])) # la fonction password_verify() est en lien avec password_hash(). Elle me permet de vérifier la correspondance entre une donnée rentrée et un hash. Elle prend 2 arguments : valeur rentrée + le hash à matcher
             {
-                // $_SESSION['user']['pseudo'] = $user['pseudo'];
-                // $_SESSION['user']['prenom'] = $user['prenom'];
-
                 foreach ($user as $key => $value) 
                 {
                     if($key != "mdp")

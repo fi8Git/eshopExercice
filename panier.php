@@ -97,6 +97,16 @@
         }
     }
 
+    // $_SESSION['user']['adresse'] = $user['adresse'];
+    // $_SESSION['user']['code_postal'] = $user['code_postal'];
+    // $_SESSION['user']['ville'] = $user['ville'];
+
+    // if(empty($_SESSION['adresse']) || empty($_SESSION['code_postal']) || empty($_SESSION['ville'])){
+    //     $manque = echo "<div class='alert alert-danger'>Veuillez remplir entièrement vos cordonnées d'envoi !</div>";
+    //     $manque .= echo "<a class='btn btn-warning' href='profil.php'>Remplir le profil</a>";
+    //     $manque .= echo "<style>.btn-success{ display: none }</style>";
+    // }
+
     // debug($_SESSION);
 
 ?>
@@ -131,7 +141,7 @@
 
                         <td><?= $value['prix'] ?> €</td>
 
-                        <td><?= $value['quantite'] ?></td>
+                        <td><?php $value['quantite'] -- ; echo "<i class='fas fa-arrow-left'></i>"; ?> <?= $value['quantite'] ?> <?php $value['quantite'] ++ ; echo "<i class='fas fa-arrow-right'></i>"; ?></td>
 
                         <td><?= $value['quantite']*$value['prix'] ?> €</td>
                         
@@ -140,11 +150,15 @@
                 </tbody>
             <?php endforeach; ?>
             <tr>
-                <th colspan="5">Montant total</th>
+                <th colspan="5">Montant total HTC</th>
                 <td><?= number_format(prixTotal(), 2, ',', '.') # la fonction number_format() nous permet de retourner un montant formaté à notre convenance. Elle accepte 1 à 4 paramètres : le nombre visé + définition du nombre de décimales + le séparateur du point décimal + déparateur des milliers ?> €</td> 
             </tr>
             <tr>
-                <td><a href="?a=truncate"><em>vider le panier</em></a></td>
+                <th colspan="5">Montant total TTC</th>
+                <td><?= number_format(prixTotal()*120/100, 2, ',', '.') ; ?> €</td> 
+            </tr>
+            <tr>
+                <td><a href="?a=truncate"><em>Vider le panier</em></a></td>
             </tr>
         </table>
         <?php if(userConnect()) : ?>
@@ -153,6 +167,7 @@
             </form>
         <?php else : ?>
             <p>Vous n'êtes pas connecté.</p>
+            <!-- <?= $manque ?> -->
             <a class="btn btn-success" href="connexion.php">Se connecter</a>
         <?php endif; ?>
     <?php endif; ?>
